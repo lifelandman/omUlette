@@ -1,4 +1,4 @@
-# VABEE-tenative-name-
+# ZABEE-tenative-name-
 A quick and easy, but unfortunately lightly-featured panda3d egg exporter blender plugin.
 
 ![image](https://user-images.githubusercontent.com/77763745/230818181-f3439022-67fb-4f12-aab9-eee694c8433d.png)
@@ -7,7 +7,7 @@ A quick and easy, but unfortunately lightly-featured panda3d egg exporter blende
 
 ## Instalation
 This plugin has no dependencies. Just install the zip-file included with the release like any other blender addon.
-If you want to compile from source, just put VABEE-main inside of a zip-file.
+If you want to compile from source, just put ZABEE-main inside of a zip-file.
 
 ## Usage
 Once you have enabled the addon, just select "egg (panda3d)" from file-export.
