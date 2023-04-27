@@ -155,12 +155,12 @@ def write_egg_string(texture_path):
 
                 
             
-                egg_string += ("\n<group> %s {\n" % name)
+                egg_string += ("\n<Instance> %s {\n" % name)#Todo:: Use group where it's more appropriate.... likely best to do group creation on a per-object level
                 
                 child_addition = ''
                 children = obj.children
                 if len(children) > 0:
-                    child_addition = childProcess(children, known_objects, known_names, texture_path)
+                    child_addition = childProcess(children, known_objects, known_names, texture_path)#This should be happening after mesh definition.
                 if obj.type == "MESH":
 
                     useTex = False
