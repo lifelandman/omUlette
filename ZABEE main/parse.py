@@ -161,15 +161,19 @@ def childProcess(objects, known_objects, known_names, texture_path, indent = 0):
                 
 ######################## MAIN FUNCTION #####################################################
 
-def write_egg_string(texture_path):
+def write_egg_string(texture_path, all_or_something):
     known_objects = []
     known_names = []#necissary so we can tell when we need to add an incrementing digit if multiple objects share a name.
     
     egg_string = "<CoordinateSystem> { Z-Up }\n\n"
     
-    mats = []
 
-    child_addition = childProcess(bpy.data.objects, known_objects, known_names, texture_path)#This should be happening after mesh definition.
+    if not all_or_something:
+        obs = bpy.data.objects
+    else:
+        obs = bpy.context.selected_objects
+
+    child_addition = childProcess(obs, known_objects, known_names, texture_path)#This should be happening after mesh definition.
 
     egg_string += child_addition
     return egg_string

@@ -38,8 +38,14 @@ class export_egg(Operator, ExportHelper):
         description="The path to this model's textures relative\nto the config file's model path"
     )
 
+    all_or_selected: BoolProperty(
+        name="Export only selected objects and children",
+        description="If this is set to true, then only the objects currently selected and their children will be exported.",
+        default=False,
+    )
+
     def execute(self, context):##Put egg generating code here:
-        egg_string = parse.write_egg_string(self.imageDir)
+        egg_string = parse.write_egg_string(self.imageDir, self.all_or_selected)
         return write_egg(context, self.filepath, egg_string)
 
 
