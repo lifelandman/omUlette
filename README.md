@@ -18,4 +18,3 @@ Multitexturing is not yet supported. The only texture applied to exported geomet
 
 ## Notes
 At the time of writing, this exporter is in a very early state. It only supports textures and static geometry, although this is eventually planed to change.
-please note that ***The exporter does NOT currently support unapplied transformations.*** this is also planned to change, but for now please apply all transforms before exporting.
