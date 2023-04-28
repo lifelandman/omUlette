@@ -2,12 +2,12 @@
 bl_info = {
     "name": "ZABEE",
     "author": "Jackson \"Lifeland\" S.",
-    "version": (0, 1),
+    "version": (0, 2),
     "blender": (3, 5, 0),
     "description": "",
     "warning": "",
     "location": "File > Export",
-    "wiki_url": "",
+    "wiki_url": "https://github.com/lifelandman/ZABEE-tenative-name-",
     "category": "Export"}
 
 import bpy

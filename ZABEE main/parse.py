@@ -64,9 +64,9 @@ def process_mesh(mesh, name, mats, useTex, indent = 1):#should return egg string
 
     return egg_data
     
+from math import degrees
     
-    
-def childProcess(objects, known_objects, known_names, texture_path, indent = 1):
+def childProcess(objects, known_objects, known_names, texture_path, indent = 0):
     newliner = "\n" + (" "* indent)
     egg_string = "\n"
     
@@ -87,9 +87,43 @@ def childProcess(objects, known_objects, known_names, texture_path, indent = 1):
             known_names.append(name)
             
             if obj.type in accepted_types:
-            
-                egg_string += (newliner + "<group> %s {\n" % name)
-                
+
+                egg_string += (newliner + "<Instance> %s {" % name + newliner)#Todo:: Use group where it's more appropriate.... likely best to do group creation on a per-object level
+
+                #Apply Transforms
+                is_transformed = False
+                transform_string =" <Transform> {"
+
+                transdata = obj.scale
+                if (transdata[0] != 0) or (transdata[1] != 0) or (transdata[2] != 0):
+                    transform_string += newliner + '  <Scale> { ' + str(transdata[0]) + ' ' + str(transdata[1]) + ' ' + str(transdata[2]) + ' }'
+                    is_transformed = True
+
+                transdata = obj.rotation_euler#Oddity in egg syntax necessitates this
+                if (transdata[0] != 0):
+                    transform_string += newliner + '  <RotX> { ' + str(degrees(transdata[0])) + ' }'
+                    is_transformed = True
+                if (transdata[1] != 0):
+                    transform_string += newliner + '  <RotY> { ' + str(degrees(transdata[1])) + ' }'
+                    is_transformed = True
+                if (transdata[2] != 0):
+                    transform_string += newliner + '  <RotZ> { ' + str(degrees(transdata[2])) + ' }'
+                    is_transformed = True
+
+                transdata = obj.location
+                if (transdata[0] != 0) or (transdata[1] != 0) or (transdata[2] != 0):
+                    transform_string += newliner + '  <Translate> { ' + str(transdata[0]) + ' ' + str(transdata[1]) + ' ' + str(transdata[2]) + '}'
+                    is_transformed = True
+
+
+                if is_transformed:
+                    transform_string += newliner + '  }'
+                    egg_string += transform_string
+                del transdata
+                del transform_string
+                ##End transform application
+
+
                 child_addition = ''
                 children = obj.children
                 if len(children) > 0:
@@ -100,24 +134,23 @@ def childProcess(objects, known_objects, known_names, texture_path, indent = 1):
                     #Add texture references, and calculate the slot data for materials
                     picnum = len(obj.to_mesh().materials)
                     if picnum != 0:
-                        useTex = True
                         for i in range(picnum):
                             mat = obj.to_mesh().materials[i]
                             img_name = None
+                            tex_name = None
                             for x in mat.node_tree.nodes:
-                                if x.bl_static_type=='TEX_IMAGE':
+                                if x.bl_static_type=='TEX_IMAGE':##THIS IS APPARENTLY DEPRICATED; and for some f*****g reason the only alternative I can find is as well. good luck, future me!
                                    img_name = x.image.name
                                    tex_name = img_name.replace(' ', '_')
+                                   useTex = True
+                                   mats.append(tex_name)
+                                   egg_string += "\n<Texture> " + tex_name + " { " + texture_path + img_name + " }"
                                    break
-                                
-                                if tex_name != None:
-                                    mats.append(tex_name)
-                                    egg_string += "\n<Texture> " + tex_name + " { " + texture_path + img_name + " }"
 
                         egg_string += newliner
 
                     #Process the mesh, and apply texture stuff in necissary
-                    new_addition = process_mesh(obj.to_mesh(), name, mats, useTex, indent)
+                    new_addition = process_mesh(obj.to_mesh(), name, mats, useTex, indent + 1)
                     egg_string += new_addition
                 
                 egg_string += child_addition
@@ -136,60 +169,8 @@ def write_egg_string(texture_path):
     
     mats = []
 
-    for obj in bpy.data.objects:
-        if not obj in known_objects:
-            known_objects.append(obj)
-            
+    child_addition = childProcess(bpy.data.objects, known_objects, known_names, texture_path)#This should be happening after mesh definition.
 
-            name = obj.name.replace(" ", "_")
-            nameinc = 0
-            nameTest = name
-            while nameTest in known_names:
-                nameinc += 1
-                nameTest = name + str(nameinc)
-            if nameinc > 0:
-                name = nameTest
-            known_names.append(name)
-            
-            if obj.type in accepted_types:
-
-                
-            
-                egg_string += ("\n<Instance> %s {\n" % name)#Todo:: Use group where it's more appropriate.... likely best to do group creation on a per-object level
-                
-                child_addition = ''
-                children = obj.children
-                if len(children) > 0:
-                    child_addition = childProcess(children, known_objects, known_names, texture_path)#This should be happening after mesh definition.
-                if obj.type == "MESH":
-
-                    useTex = False
-                    #Add texture references, and calculate the slot data for materials
-                    picnum = len(obj.to_mesh().materials)
-                    if picnum > 0:
-                        useTex = True
-                        for i in range(picnum):
-                            mat = obj.to_mesh().materials[i]
-                            img_name = None
-                            tex_name = None
-                            for x in mat.node_tree.nodes:
-                                if x.bl_static_type=='TEX_IMAGE':##THIS IS APPARENTLY DEPRICATED; and for some f*****g reason the only alternative I can find is as well. good luck, future me!
-                                   img_name = x.image.name
-                                   tex_name = img_name.replace(' ', '_')
-                                   break
-                            
-                            if tex_name != None:
-                                mats.append(tex_name)
-                                egg_string += "\n<Texture> " + tex_name + " { " + texture_path + img_name + " }"
-
-                        egg_string += '\n'
-
-                    #Process the mesh, and apply texture stuff in necissary
-                    new_addition = process_mesh(obj.to_mesh(), name, mats, useTex)
-                    egg_string += new_addition
-                
-                egg_string += child_addition
-
-                egg_string += "\n}"
+    egg_string += child_addition
     return egg_string
                     
