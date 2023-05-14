@@ -176,5 +176,7 @@ def write_egg_string(texture_path, all_or_something):
     child_addition = childProcess(obs, known_objects, known_names, texture_path)#This should be happening after mesh definition.
 
     egg_string += child_addition
+
+    ##TODO:: add known_meshes string so we can lookup vertexpool names for character bundles
     return egg_string
                     
