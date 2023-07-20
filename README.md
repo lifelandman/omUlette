@@ -1,4 +1,4 @@
-# ZABEE-tenative-name-
+# omUlite
 A quick and easy, lightly-featured panda3d egg exporter blender plugin.
 
 ![image](https://user-images.githubusercontent.com/77763745/230818181-f3439022-67fb-4f12-aab9-eee694c8433d.png)
