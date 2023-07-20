@@ -17,4 +17,4 @@ All geometry will be exported. In the future, I might make it so this is more in
 Multitexturing is not yet supported. The only texture applied to exported geometry is the first one specified per node-based material.
 
 ## Notes
-At the time of writing, this exporter is in a very early state. It only supports textures and static geometry, although this is eventually planed to change.
+At the time of writing, this exporter is in a very early state. It only supports textures and static geometry (despite exporting rigged models), although this is eventually planed to change.
