@@ -1,8 +1,8 @@
 
 bl_info = {
-    "name": "ZABEE",
+    "name": "omUlete",
     "author": "Jackson \"Lifeland\" S.",
-    "version": (0, 2),
+    "version": (0, 5),
     "blender": (3, 5, 0),
     "description": "",
     "warning": "",
@@ -11,9 +11,9 @@ bl_info = {
     "category": "Export"}
 
 import bpy
-from . import export
+from . import omuExport
 
-modules = [export]
+modules = [omuExport]
 
 def register():
 

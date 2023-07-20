@@ -1,8 +1,8 @@
 import bpy
-from . import parse
+from . import omuParse
 
 def write_egg(context, filepath, egg_string):
-    print("running write_egg...")
+    #print("running write_egg...")
     f = open(filepath, 'w', encoding='utf-8')
     f.write(egg_string)
     f.close()
@@ -44,8 +44,41 @@ class export_egg(Operator, ExportHelper):
         default=False,
     )
 
+    expt_animations: BoolProperty(
+        name="Export Armatures and Animations",
+        description="If this is set to true, then the armature will be exported. (animation export is not yet implemented.)\nthis will be ignored if no armatures are detected in the selected objects.",
+        default=False,
+    )
+    
+    collapse_nodes: BoolProperty(
+        name="Collapse Character Nodes",
+        description="If this is set to true, node structure of aniamted characters will be flattened.",
+        default=False,
+    )
+    
+    #Organise and beutify the options
+    
+    def draw(self, context):
+        box = self.layout.box()        
+
+        row = box.row()
+        row.label(text= "basic options")
+        row = box.row()
+        row.prop(context.active_operator, "imageDir")
+        row = box.row()
+        row.prop(context.active_operator, "all_or_selected")
+        
+        box = self.layout.box()
+        
+        row = box.row()
+        row.prop(context.active_operator, "expt_animations")
+        if self.expt_animations:
+            row = box.row()
+            row.prop(context.active_operator, "collapse_nodes")
+            row = box.row()
+
     def execute(self, context):##Put egg generating code here:
-        egg_string = parse.write_egg_string(self.imageDir, self.all_or_selected)
+        egg_string = omuParse.write_egg_string(self.imageDir, self.all_or_selected, self.expt_animations, self.collapse_nodes)
         return write_egg(context, self.filepath, egg_string)
 
 
