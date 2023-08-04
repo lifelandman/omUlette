@@ -1,8 +1,13 @@
 import bpy
 from . import omuParse
 
+# ExportHelper is a helper class, defines filename and
+# invoke() function which calls the file selector.
+from bpy_extras.io_utils import ExportHelper
+from bpy.props import StringProperty, BoolProperty, EnumProperty, CollectionProperty
+from bpy.types import Operator
+
 def write_egg(context, filepath, egg_string):
-    #print("running write_egg...")
     f = open(filepath, 'w', encoding='utf-8')
     f.write(egg_string)
     f.close()
@@ -10,11 +15,20 @@ def write_egg(context, filepath, egg_string):
     return {'FINISHED'}
 
 
-# ExportHelper is a helper class, defines filename and
-# invoke() function which calls the file selector.
-from bpy_extras.io_utils import ExportHelper
-from bpy.props import StringProperty, BoolProperty, EnumProperty
-from bpy.types import Operator
+#Custom property group/whatever for action export
+class animProps(bpy.types.PropertyGroup):
+    action: bpy.props.PointerProperty(type=bpy.types.Action)#With this, we can just have a list of exporting actions via the collectionproperty
+    
+    export: BoolProperty(name = 'export',
+        description = 'export this action.',
+        default = True)
+    
+    filePlace: EnumProperty(name= 'location',
+        description= 'choose whether this animation is saved in a file seprate from the rest of the export or included at the bottom',
+        items =[('OP1', 'same file', "include this animation in the \"main\" file"), ('OP2', 'new file', "include this animation in it's own file")])
+
+
+
 
 
 class export_egg(Operator, ExportHelper):
@@ -56,9 +70,23 @@ class export_egg(Operator, ExportHelper):
         default=False,
     )
     
-    #Organise and beutify the options
     
-    def draw(self, context):
+    def invoke(self, context, event):#Generate list of Actions so user can select what gets exported and how
+        parentRet = ExportHelper.invoke(self, context, event)#call exportHelper's invoke first
+        bpy.types.Scene.actionData = CollectionProperty(type = animProps)
+        context.scene.actionData.clear()
+        for action in bpy.data.actions:
+            for f in action.fcurves:##Filter through actions so we only have those that affect bones
+                if "pose.bones" in f.data_path:
+                    newAction = context.scene.actionData.add()
+                    newAction.action = action
+                    break
+            continue
+        return parentRet
+    
+    def draw(self, context):#Organise and beutify the options
+        
+        ##Crate a box for basic options
         box = self.layout.box()        
 
         row = box.row()
@@ -68,6 +96,7 @@ class export_egg(Operator, ExportHelper):
         row = box.row()
         row.prop(context.active_operator, "all_or_selected")
         
+        ##Create a box for animation stuff
         box = self.layout.box()
         
         row = box.row()
@@ -76,10 +105,34 @@ class export_egg(Operator, ExportHelper):
             row = box.row()
             row.prop(context.active_operator, "collapse_nodes")
             row = box.row()
+            ##Add action selection
+            subBox = box.box()
+            for item in context.scene.actionData:
+                row = subBox.row()
+                col = row.column()
+                col.label(text=item.action.name)
+                col = row.column()
+                col.prop(item, "export")
+                if item.export:
+                    col = row.column()
+                    col.prop(item, 'filePlace')
 
     def execute(self, context):##Put egg generating code here:
-        egg_string = omuParse.write_egg_string(self.imageDir, self.all_or_selected, self.expt_animations, self.collapse_nodes)
+        if self.all_or_selected and self.expt_animations:
+            hasMesh = False
+            for i in bpy.context.selected_objects:
+                if i.type == "MESH":
+                    hasMesh = True
+                    break
+            if not hasMesh:
+                self.report({"ERROR"}, "Cannot export only selected objects and armatures if no mesh is selected!")
+                return {"CANCELLED"}
+        
+        egg_string = omuParse.write_egg_string(self.imageDir, self.all_or_selected, self.expt_animations, self.collapse_nodes, context.scene.actionData, self.filepath)
+        del bpy.types.Scene.actionData
         return write_egg(context, self.filepath, egg_string)
+
+
 
 
 # Only needed if you want to add into a dynamic menu
@@ -89,12 +142,14 @@ def menu_func_export(self, context):
 
 # Register and add to the "file selector" menu (required to use F3 search "Text Export Operator" for quick access).
 def register():
+    bpy.utils.register_class(animProps)
     bpy.utils.register_class(export_egg)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 
 def unregister():
     bpy.utils.unregister_class(export_egg)
+    bpy.utils.unregister_class(animProps)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
 

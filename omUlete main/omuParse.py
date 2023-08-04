@@ -53,22 +53,26 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
                 if groupName in boneNames:#this v group coorisponds to a bone
                     #print("recognised bone name!")
 
-                    if not (groupName in boneDict):#we don't have a dict for this group
+                    if groupName not in boneDict:#we don't have a dict for this group
                         boneDict[groupName] = {}#We create a dict for this bone
                         #print("created dict for bone refs")
                         
 
-                    if not (name + "_pool"  in boneDict[groupName]):#no reference to this mesh's vert pool yet
+                    if name + "_pool" not in boneDict[groupName]:#no reference to this mesh's vert pool yet
                         boneDict[groupName][name + "_pool"] = {}#We create a dict to hold membership strength values
                         #print("created ref dict")
 
-                    if not (card.weight in boneDict[groupName][name + "_pool"]):
+                    if card.weight not in boneDict[groupName][name + "_pool"]:
                         boneDict[groupName][name + "_pool"][card.weight] = []
                         #print("created list for storing verts of given weight")
 
-                    if not (idNum in boneDict[groupName][name + "_pool"][card.weight]):#We don't have this ID number yet, so let's add it for refrence during bone definition.
+                    if idNum not in boneDict[groupName][name + "_pool"][card.weight]:#We don't have this ID number yet, so let's add it for refrence during bone definition.
                         boneDict[groupName][name + "_pool"][card.weight].append(idNum)
                         #print("added vert ID")
+        #Create entries for bones without geometry to avoid a crash. Yes this causes a memory leak.
+            for bname in boneNames:
+                if bname not in boneDict:
+                    boneDict[bname] = {}
 
         idNum +=1#counter for how many vertices we've made
                 
@@ -166,14 +170,14 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                 #Apply Transforms
                 is_transformed = False
                 transform_string =" <Transform> {"
-
-                transdata = obj.scale
+                mat = obj.matrix_local#Hopefully the manual isn't lying and this really is parent-relative
+                transdata = obj.scale#scale cannot be determined from matrix alone if negative
                 if (transdata[0] != 0) or (transdata[1] != 0) or (transdata[2] != 0):
                     transform_string += newliner + '  <Scale> { ' + str(transdata[0]) + ' ' + str(transdata[1]) + ' ' + str(transdata[2]) + ' }'
                     is_transformed = True
 
-                transdata = obj.rotation_euler#Oddity in egg syntax necessitates this
-                if (transdata[0] != 0):#Necesitates what? I need to get better at commenting.
+                transdata = mat.to_euler()
+                if (transdata[0] != 0):
                     transform_string += newliner + '  <RotX> { ' + str(degrees(transdata[0])) + ' }'
                     is_transformed = True
                 if (transdata[1] != 0):
@@ -183,7 +187,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                     transform_string += newliner + '  <RotZ> { ' + str(degrees(transdata[2])) + ' }'
                     is_transformed = True
 
-                transdata = obj.location
+                transdata = mat.to_translation()
                 if (transdata[0] != 0) or (transdata[1] != 0) or (transdata[2] != 0):
                     transform_string += newliner + '  <Translate> { ' + str(transdata[0]) + ' ' + str(transdata[1]) + ' ' + str(transdata[2]) + '}'
                     is_transformed = True
@@ -236,7 +240,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                 
 ######################## MAIN FUNCTION #####################################################
 
-def write_egg_string(texture_path, all_or_something, using_anim, collapse_nodes):
+def write_egg_string(texture_path, all_or_something, using_anim, collapse_nodes, actionProps, filepath):
     known_objects = []
     known_names = []#necissary so we can tell when we need to add an incrementing digit if multiple objects share a name.
     armDict = {}
@@ -252,18 +256,20 @@ def write_egg_string(texture_path, all_or_something, using_anim, collapse_nodes)
         obs = bpy.context.selected_objects
 
     child_addition = childProcess(obs, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, False)#This should be happening after mesh definition.
+    egg_string += child_addition
 
     ##Generate group data to hand to armString
     armMems = {}
     #print(armMemDict)
-    for arm in bpy.data.armatures:
-        armMems[arm.name] = childProcess(armMemDict[arm.name], [], known_names, texture_path, True, armDict, armMemDict, True, 1)
-
+    if using_anim:
+        for arm in bpy.data.armatures:
+            armMems[arm.name] = childProcess(armMemDict[arm.name], [], known_names, texture_path, True, armDict, armMemDict, True, 1)
+        armString = omuAnims.gen_anim_egg_string(armDict, bpy.data.armatures, armMems, collapse_nodes) if using_anim == True else ''
     
-    armString = omuAnims.gen_anim_egg_string(armDict, bpy.data.armatures, armMems, collapse_nodes) if using_anim == True else ''
+        egg_string += armString
 
-    egg_string += child_addition + armString
-
-    ##TODO:: add known_meshes string so we can lookup vertexpool names for character bundles
+    if using_anim:
+        egg_string += omuAnims.action2anim(bpy.data.armatures, actionProps, filepath, bpy.context.scene.render.fps)
+    
     return egg_string
                     

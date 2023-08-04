@@ -2,12 +2,12 @@
 bl_info = {
     "name": "omUlete",
     "author": "Jackson \"Lifeland\" S.",
-    "version": (0, 5),
+    "version": (0, 8),
     "blender": (3, 5, 0),
     "description": "",
     "warning": "",
     "location": "File > Export",
-    "wiki_url": "https://github.com/lifelandman/ZABEE-tenative-name-",
+    "wiki_url": "https://github.com/lifelandman/omUlete",
     "category": "Export"}
 
 import bpy
