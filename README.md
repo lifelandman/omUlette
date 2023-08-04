@@ -1,4 +1,4 @@
-# ZABEE-tenative-name-
+# omUlite
 A quick and easy, lightly-featured panda3d egg exporter blender plugin.
 
 ![image](https://user-images.githubusercontent.com/77763745/230818181-f3439022-67fb-4f12-aab9-eee694c8433d.png)
@@ -17,4 +17,4 @@ All geometry will be exported. In the future, I might make it so this is more in
 Multitexturing is not yet supported. The only texture applied to exported geometry is the first one specified per node-based material.
 
 ## Notes
-At the time of writing, this exporter is in a very early state. It only supports textures and static geometry, although this is eventually planed to change.
+At the time of writing, this exporter is in a very early state. It only supports textures and static geometry (despite exporting rigged models), although this is eventually planed to change.
