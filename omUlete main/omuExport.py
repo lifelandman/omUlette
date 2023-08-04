@@ -67,7 +67,7 @@ class export_egg(Operator, ExportHelper):
     collapse_nodes: BoolProperty(
         name="Collapse Character Nodes",
         description="If this is set to true, node structure of aniamted characters will be flattened.",
-        default=False,
+        default=True,
     )
     
     
