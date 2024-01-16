@@ -1,4 +1,4 @@
-# omUlite
+# omUlete
 A quick and easy, lightly-featured panda3d egg exporter blender plugin.
 
 ![image](https://user-images.githubusercontent.com/77763745/230818181-f3439022-67fb-4f12-aab9-eee694c8433d.png)
@@ -17,4 +17,14 @@ All geometry will be exported. In the future, I might make it so this is more in
 Multitexturing is not yet supported. The only texture applied to exported geometry is the first one specified per node-based material.
 
 ## Notes
-At the time of writing, this exporter is in a very early state. It only supports textures and static geometry (despite exporting rigged models), although this is eventually planed to change.
+### I'm trying to export just an armature and it's animations, by using the setting to only export selected objects. however, I get an error.
+omUlete is built in a way that can only generated animated objects in an egg file by first iterating through non-armature objects, and saving those that have a armature deformation for later.
+I'd love to fix this so an armature without geometry could be exported, but that would require that the whole plugin be more or less rewritten from scratch.
+
+### I'm exporting an animated charcter with the "Collapse Character Nodes" not ticked, but the final animation looks distorted!
+This is because a panda3d character (That's the name of the class responsible for animation behind the actor class) expects that the origin of all geometry distorted by a skeleton to be the same as that of the skeleton itself.
+(note: the origin of a skeleton in an egg file is really just the offset of all the top-level bones).
+
+I considered making it so that the origin of deformed mesh is auto-adjusted to match that of any armature deforming it, but I realized that it's important for some modelers to know specifically where that origin is, so I didn't add that feature.
+
+In fact, all you have to do to ensure that animation is in-fact getting exported correctly is to find the top of the animated character in the exported egg file and change _\<Dart> {Structured}_ to _\<Dart> {1}_ and the animation should look entirely as intended!
