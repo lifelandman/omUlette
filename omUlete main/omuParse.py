@@ -210,7 +210,6 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
             if len(children) > 0:
                 child_addition = childProcess(children, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, genDart, indent + 1)
             if obj.type == "MESH":
-
                 thisMesh = obj.to_mesh(preserve_all_data_layers=True, depsgraph= bpy.context.evaluated_depsgraph_get())
                 useTex = False
                 #Add texture references, and calculate the slot data for materials
@@ -234,14 +233,14 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
 
                     
                     
-                    #Process the mesh, and apply texture stuff in necissary
-                    new_addition = process_mesh(thisMesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent + 1)
-                    egg_string += new_addition
-                    obj.to_mesh_clear()
+                #Process the mesh, and apply texture stuff in necissary
+                new_addition = process_mesh(thisMesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent + 1)
+                egg_string += new_addition
+                obj.to_mesh_clear()
                 
-                egg_string += child_addition
+            egg_string += child_addition
                 
-                egg_string += newliner + "}"
+            egg_string += newliner + "}"
     return egg_string
                 
                 
