@@ -114,14 +114,14 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
     
     for obj in objects:
         if not obj in known_objects:
-            if obj.parent != None and not obj.parent in known_objects:
+            arm = obj.find_armature()#get once, use thrice for both check and bones
+            
+            if obj.parent != None and not obj.parent in known_objects and arm == None:
                 continue
             known_objects.append(obj)
             if obj.type == "ARMATURE":
                 continue
             
-
-            arm = obj.find_armature()#get once, use twice for both check and bones
             #Armature Logic. #if this is the static pass, we add children to known_objects and continue. Otherwise, we build boneDict and generate
             if (arm != None) and using_anim:
                 if not arm.name in armDict:
