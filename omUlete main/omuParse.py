@@ -33,6 +33,8 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
 
         vert = mesh.vertices[vertex_id]
 
+        if useTex:#no textures? then skip the uvs which lead to excess verts.
+            uv_cor_str = 'null'#TODO:: give users the option to toggle this behavior
         if vertex_id in uv_match_check:#TODO:: Test that this works
             if uv_cor_str in uv_match_check[vertex_id]:
                 loop_id_lookup[loop_id] = uv_match_check[vertex_id][uv_cor_str]
@@ -40,9 +42,8 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
             
         co = vert.undeformed_co
         egg_data += (newliner + " <Vertex> " + str(idNum) + ' { ' + str(co[0]) + ' ' + str(co[1]) + ' ' + str(co[2])
-        + newliner + "  <Normal> { " + str(vert.normal[0]) + ' ' + str(vert.normal[1]) + ' ' + str(vert.normal[2]) + '}' + newliner
-        + "  <UV> { " + str(uv_cor.x) + ' ' + str(uv_cor.y) + " }"
-        )
+        + newliner + "  <Normal> { " + str(vert.normal[0]) + ' ' + str(vert.normal[1]) + ' ' + str(vert.normal[2]) + '}' + newliner)
+        if useTex: egg_data += "  <UV> { " + str(uv_cor.x) + ' ' + str(uv_cor.y) + " }"
         egg_data += '}'
 
         if not vertex_id in uv_match_check:
@@ -113,6 +114,8 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
     
     for obj in objects:
         if not obj in known_objects:
+            if obj.parent != None and not obj.parent in known_objects:
+                continue
             known_objects.append(obj)
             if obj.type == "ARMATURE":
                 continue
