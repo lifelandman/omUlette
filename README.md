@@ -21,9 +21,9 @@ Multitexturing is not yet supported. The only texture applied to exported geomet
 omUlete is built in a way that can only generated animated objects in an egg file by first iterating through non-armature objects, and saving those that have a armature deformation for later.
 I'd love to fix this so an armature without geometry could be exported, but that would require that the whole plugin be more or less rewritten from scratch.
 
-###Why are some exported meshes randomly inside-out?
+### Why are some exported meshes randomly inside-out?
 I swear this is blender's fault. Normaly blender stores loops in a counterclockwise order, which is what we need and expect. however, sometimes it just... doesn't. Ultimately fixing this would involve way more time and bloat. For now, try (scaling by -1 if your mesh is symetrical and) applying all scale transformations before recalculating the normals.
-You can also/try instead recalculating the normals in the opposite direction. However, note that this is just a hacky way to swap the vertex order. Lighting will be the opposite of what it's supposed to be! *gulp*
+You can also/try instead recalculating the normals in the opposite direction. However, note that this is just a hacky way to swap the vertex order. Lighting will be the opposite of what it's supposed to be! \**gulp*\*
 
 ### I'm exporting an animated charcter with the "Collapse Character Nodes" not ticked, but the final animation looks distorted!
 This is because a panda3d character (That's the name of the class responsible for animation behind the actor class) expects that the origin of all geometry distorted by a skeleton to be the same as that of the skeleton itself.
