@@ -57,6 +57,12 @@ class export_egg(Operator, ExportHelper):
         description="If this is set to true, then only the objects currently selected and their children will be exported.",
         default=False,
     )
+    
+    skip_UUV: BoolProperty(#skip unneeded UVs
+        name="skip exporting UVs for mesh with no texture",
+        description="If this is set to true, then uvs will not be exported unless the relevant mesh has a texture applied. \nIn egg files, a vert cannot use two uv coords at once, so we generate multiple vertecies corisponding to each uv coordinate.",
+        default=True,
+    )
 
     expt_animations: BoolProperty(
         name="Export Armatures and Animations",
@@ -95,6 +101,8 @@ class export_egg(Operator, ExportHelper):
         row.prop(context.active_operator, "imageDir")
         row = box.row()
         row.prop(context.active_operator, "all_or_selected")
+        row = box.row()
+        row.prop(context.active_operator, "skip_UUV")
         
         ##Create a box for animation stuff
         box = self.layout.box()
@@ -128,7 +136,7 @@ class export_egg(Operator, ExportHelper):
                 self.report({"ERROR"}, "Cannot export only selected objects and armatures if no mesh is selected!")
                 return {"CANCELLED"}
         
-        egg_string = omuParse.write_egg_string(self.imageDir, self.all_or_selected, self.expt_animations, self.collapse_nodes, context.scene.actionData, self.filepath)
+        egg_string = omuParse.write_egg_string(self.imageDir, self.all_or_selected, self.expt_animations, self.skip_UUV, self.collapse_nodes, context.scene.actionData, self.filepath)
         del bpy.types.Scene.actionData
         return write_egg(context, self.filepath, egg_string)
 

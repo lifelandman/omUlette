@@ -2,7 +2,7 @@
 bl_info = {
     "name": "omUlete",
     "author": "Jackson \"Lifeland\" S.",
-    "version": (0, 915),
+    "version": (0, 92),
     "blender": (3, 5, 0),
     "description": "",
     "warning": "",

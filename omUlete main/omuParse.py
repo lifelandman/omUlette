@@ -1,7 +1,8 @@
+from unittest import skip
 import bpy
 from . import omuAnims
 
-accepted_types = ('MESH', 'EMPTY')
+skippingUvs = False
 
 def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent = 1):#should return egg string for this mesh without hierarchy indentation
     newliner = "\n" + (" "* indent)
@@ -19,8 +20,6 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
     egg_data = newliner + "<VertexPool> " + name + "_pool {"
 
     idNum = 0
-
-    
     for loop in mesh.loops:#Generate verticies and lookup table(s)
         #Please note that in bpy loops refer to more or less the "triangles" of a mesh.
 
@@ -33,7 +32,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
 
         vert = mesh.vertices[vertex_id]
 
-        if useTex:#no textures? then skip the uvs which lead to excess verts.
+        if not useTex and skippingUvs:#no textures? then skip the uvs which lead to excess verts.
             uv_cor_str = 'null'#TODO:: give users the option to toggle this behavior
         if vertex_id in uv_match_check:#TODO:: Test that this works
             if uv_cor_str in uv_match_check[vertex_id]:
@@ -42,7 +41,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
             
         co = vert.undeformed_co
         egg_data += (newliner + " <Vertex> " + str(idNum) + ' { ' + str(co[0]) + ' ' + str(co[1]) + ' ' + str(co[2])
-        + newliner + "  <Normal> { " + str(vert.normal[0]) + ' ' + str(vert.normal[1]) + ' ' + str(vert.normal[2]) + '}' + newliner)
+        + newliner + "  <Normal> { " + str(vert.normal.x) + ' ' + str(vert.normal.y) + ' ' + str(vert.normal.z) + '}' + newliner)
         if useTex: egg_data += "  <UV> { " + str(uv_cor.x) + ' ' + str(uv_cor.y) + " }"
         egg_data += '}'
 
@@ -92,7 +91,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
         if useTex:
             egg_data += "<TRef> { " + mats[poly.material_index] + " }" + newliner
         
-        egg_data += " <VertexRef> { "
+        egg_data += " <VertexRef> { "#now for a bunch of shit that might not even be nessicary.
         for loop in poly.loop_indices:
             egg_data += str(loop_id_lookup[loop]) + ' '
         egg_data += "<ref> { " + name + "_pool }}}"
@@ -211,7 +210,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
             child_addition = ''
             children = obj.children
             if len(children) > 0:
-                child_addition = childProcess(children, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, genDart, indent + 1)
+                child_addition = childProcess(children, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, genDart, indent= indent + 1)
             if obj.type == "MESH":
                 thisMesh = obj.to_mesh(preserve_all_data_layers=True, depsgraph= bpy.context.evaluated_depsgraph_get())
                 useTex = False
@@ -249,11 +248,13 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                 
 ######################## MAIN FUNCTION #####################################################
 
-def write_egg_string(texture_path, all_or_something, using_anim, collapse_nodes, actionProps, filepath):
+def write_egg_string(texture_path, all_or_something, using_anim, skip_UUV, collapse_nodes, actionProps, filepath):
     known_objects = []
     known_names = []#necissary so we can tell when we need to add an incrementing digit if multiple objects share a name.
     armDict = {}
     armMemDict = {}
+    
+    skippingUvs = skip_UUV
 
     
     egg_string = "<CoordinateSystem> { Z-Up }\n\n"
@@ -263,6 +264,13 @@ def write_egg_string(texture_path, all_or_something, using_anim, collapse_nodes,
         obs = bpy.data.objects
     else:
         obs = bpy.context.selected_objects
+        for obj in obs:
+            if obj.parent != None:
+                if obj.parent in obs:
+                    continue
+                else:
+                    known_objects.append(obj.parent)
+
 
     child_addition = childProcess(obs, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, False)#This should be happening after mesh definition.
     egg_string += child_addition
@@ -272,7 +280,7 @@ def write_egg_string(texture_path, all_or_something, using_anim, collapse_nodes,
     #print(armMemDict)
     if using_anim:
         for arm in bpy.data.armatures:
-            armMems[arm.name] = childProcess(armMemDict[arm.name], [], known_names, texture_path, True, armDict, armMemDict, True, 1)
+            armMems[arm.name] = childProcess(armMemDict[arm.name], [], known_names, texture_path, True, armDict, armMemDict, True, indent = 1)
         armString = omuAnims.gen_anim_egg_string(armDict, bpy.data.armatures, armMems, collapse_nodes) if using_anim == True else ''
     
         egg_string += armString
