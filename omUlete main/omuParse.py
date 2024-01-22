@@ -1,6 +1,7 @@
 from unittest import skip
 import bpy
 from . import omuAnims
+from .props import *
 
 skippingUvs = False
 
@@ -204,7 +205,14 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                 egg_string += transform_string
             del transdata
             del transform_string
+            del is_transformed
             ##End transform application
+
+            for key in obj.keys():
+                if key in propDict:
+                    egg_string += newliner + ' ' + propDict[key](obj)
+                elif issubclass(type(obj[key]), str):
+                    egg_string += newliner + ' <Tag> ' + key.replace(' ', '_') + ' { ' + obj[key] + ' }'
 
 
             child_addition = ''
