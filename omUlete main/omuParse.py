@@ -26,15 +26,16 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
 
         vertex_id = loop.vertex_index
         loop_id = loop.index
-        uvLoop = mesh.uv_layers[0]
-        uv_cor = uvLoop.uv[loop_id].vector
-        uv_cor_str = str(uv_cor.x) +','+ str(uv_cor.y)#Stupid hack because something hasn't been working
         
 
         vert = mesh.vertices[vertex_id]
 
-        if not useTex and skippingUvs:#no textures? then skip the uvs which lead to excess verts.
+        if ((not useTex) and skippingUvs) or len(mesh.uv_layers) == 0:#no textures? then skip the uvs which lead to excess verts.
             uv_cor_str = 'null'#TODO:: give users the option to toggle this behavior
+        else:
+            uvLoop = mesh.uv_layers[0]
+            uv_cor = uvLoop.uv[loop_id].vector
+            uv_cor_str = str(uv_cor.x) +','+ str(uv_cor.y)#Stupid hack because something hasn't been working
         if vertex_id in uv_match_check:#TODO:: Test that this works
             if uv_cor_str in uv_match_check[vertex_id]:
                 loop_id_lookup[loop_id] = uv_match_check[vertex_id][uv_cor_str]
@@ -209,7 +210,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
             ##End transform application
 
             for key in obj.keys():
-                if key in propDict:
+                if key.lower() in propDict:
                     egg_string += newliner + ' ' + propDict[key](obj)
                 elif issubclass(type(obj[key]), str):
                     egg_string += newliner + ' <Tag> ' + key.replace(' ', '_') + ' { ' + obj[key] + ' }'
@@ -244,6 +245,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                     
                     
                 #Process the mesh, and apply texture stuff in necissary
+                print(obj.name)    
                 new_addition = process_mesh(thisMesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent + 1)
                 egg_string += new_addition
                 obj.to_mesh_clear()

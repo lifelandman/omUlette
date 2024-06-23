@@ -16,6 +16,17 @@ All geometry will be exported. In the future, I might make it so this is more in
 
 Multitexturing is not yet supported. The only texture applied to exported geometry is the first one specified per node-based material.
 
+#CollisionShapes and other custom-property enabled nodes
+omUlete now has support for exporting collision shapes, and I have plans to add support for at least sequence nodes.
+you can make an object and it's children a collision shape by adding a custom property with one of the following names (with any capitalization):
+'collisionbox'
+'collisionplane'
+'collisionpolygon'
+'collisionpolyset'
+'collisionsphere'
+'collisioninvsphere'
+'collisiontube'
+
 ## Notes
 ### I'm trying to export just an armature and it's animations, by using the setting to only export selected objects. however, I get an error.
 omUlete is built in a way that can only generated animated objects in an egg file by first iterating through non-armature objects, and saving those that have a armature deformation for later.

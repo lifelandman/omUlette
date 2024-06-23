@@ -18,67 +18,53 @@ colStart = '<Collide> { '#a silly attempt to minimize the number of strings in m
 colCap = ' descend }'
 
 def writeBox(obj):
-    if obj['collisionBox']:
-        string = colStart + 'Box '
-        doColProps(obj, string)
-        string += colCap
-        return string
-    else: return ''
+    string = colStart + 'Box '
+    doColProps(obj, string)
+    string += colCap
+    return string
     
 def writePlane(obj):
-    if obj['collisionPlane']:
-        string = colStart + 'Plane '
-        doColProps(obj, string)
-        string += colCap
-        return string
-    else: return ''
+    string = colStart + 'Plane '
+    doColProps(obj, string)
+    string += colCap
+    return string
     
 def writePolygon(obj):
-    if obj['collisionPolygon']:
-        string = colStart + 'Polygon '
-        doColProps(obj, string)
-        string += colCap
-        return string
-    else: return ''
+    string = colStart + 'Polygon '
+    doColProps(obj, string)
+    string += colCap
+    return string
     
 def writePolyset(obj):
-    if obj['collisionPolyset']:
-        string = colStart + 'Polyset '
-        doColProps(obj, string)
-        string += colCap
-        return string
-    else: return ''
+    string = colStart + 'Polyset '
+    doColProps(obj, string)
+    string += colCap
+    return string
     
 def writeSphere(obj):
-    if obj['collisionSphere']:
-        string = colStart + 'Sphere '
-        doColProps(obj, string)
-        string += colCap
-        return string
-    else: return ''
+    string = colStart + 'Sphere '
+    doColProps(obj, string)
+    string += colCap
+    return string
     
 def writeInvSphere(obj):
-    if obj['collisionInvSphere']:
-        string = colStart + 'InvSphere '
-        doColProps(obj, string)
-        string += colCap
-        return string
-    else: return ''
+    string = colStart + 'InvSphere '
+    doColProps(obj, string)
+    string += colCap
+    return string
     
 def writeTube(obj):
-    if obj['collisionTube']:
-        string = colStart + 'Tube '
-        doColProps(obj, string)
-        string += colCap
-        return string
-    else: return ''
+    string = colStart + 'Tube '
+    doColProps(obj, string)
+    string += colCap
+    return string
 
 propDict = {
-    'collisionBox': writeBox,
-    'collisionPlane': writePlane,
-    'collisionPolygon':writePolygon,
-    'collisionPolyset':writePolyset,
-    'collisionSphere':writeSphere,
-    'collisionInvSphere':writeInvSphere,
-    'collisionTube':writeTube,
+    'collisionbox': writeBox,
+    'collisionplane': writePlane,
+    'collisionpolygon':writePolygon,
+    'collisionpolyset':writePolyset,
+    'collisionsphere':writeSphere,
+    'collisioninvsphere':writeInvSphere,
+    'collisiontube':writeTube,
     }
