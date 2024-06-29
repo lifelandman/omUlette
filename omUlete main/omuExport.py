@@ -48,7 +48,7 @@ class export_egg(Operator, ExportHelper):
     # List of operator properties, the attributes will be assigned
     # to the class instance from the operator settings before calling.
     imageDir: StringProperty(
-        default="images\\",
+        default="images/",
         description="The path to this model's textures relative\nto the config file's model path"
     )
 

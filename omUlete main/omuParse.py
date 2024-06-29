@@ -211,7 +211,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
 
             for key in obj.keys():
                 if key.lower() in propDict:
-                    egg_string += newliner + ' ' + propDict[key](obj)
+                    egg_string += newliner + ' ' + propDict[key.lower()](obj)
                 elif issubclass(type(obj[key]), str):
                     egg_string += newliner + ' <Tag> ' + key.replace(' ', '_') + ' { ' + obj[key] + ' }'
 
