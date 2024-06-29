@@ -44,3 +44,8 @@ This is because a panda3d character (That's the name of the class responsible fo
 I considered making it so that the origin of deformed mesh is auto-adjusted to match that of any armature deforming it, but I realized that it's important for some modelers to know specifically where that origin is, so I didn't add that feature.
 
 In fact, all you have to do to ensure that animation is in-fact getting exported correctly is to find the top of the animated character in the exported egg file and change _\<Dart> {Structured}_ to _\<Dart> {1}_ and the animation should look entirely as intended!
+
+### My textures won't load after exporting!
+- Is your image directory underneath your model directory as defined in your config file?
+- If that doesn't work, try appending the file extension to the texture's name in blender.
+- If you're still having issues, please contact me through here or the panda3d discord.
