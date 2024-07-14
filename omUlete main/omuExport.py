@@ -53,19 +53,19 @@ class export_egg(Operator, ExportHelper):
     )
 
     all_or_selected: BoolProperty(
-        name="Export only selected objects and children",
+        name="Selected Only (and children)",
         description="If this is set to true, then only the objects currently selected and their children will be exported.",
         default=False,
     )
     
     skip_UUV: BoolProperty(#skip unneeded UVs
-        name="skip exporting UVs for mesh with no texture",
+        name="Skip UVs for meshes with no texture",
         description="If this is set to true, then uvs will not be exported unless the relevant mesh has a texture applied. \nIn egg files, a vert cannot use two uv coords at once, so we generate multiple vertecies corisponding to each uv coordinate.",
         default=True,
     )
 
     expt_animations: BoolProperty(
-        name="Export Armatures and Animations",
+        name="Armatures and Animations",
         description="If this is set to true, then the armature will be exported. (animation export is not yet implemented.)\nthis will be ignored if no armatures are detected in the selected objects.",
         default=False,
     )
@@ -96,11 +96,11 @@ class export_egg(Operator, ExportHelper):
         box = self.layout.box()        
 
         row = box.row()
-        row.label(text= "basic options")
-        row = box.row()
-        row.prop(context.active_operator, "imageDir")
+        row.label(text= "Export Options")
         row = box.row()
         row.prop(context.active_operator, "all_or_selected")
+        row = box.row()
+        row.prop(context.active_operator, "imageDir")
         row = box.row()
         row.prop(context.active_operator, "skip_UUV")
         

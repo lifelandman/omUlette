@@ -2,7 +2,7 @@
 bl_info = {
     "name": "omUlete",
     "author": "Jackson \"Lifeland\" S.",
-    "version": (0, 95),
+    "version": (0, 96),
     "blender": (3, 5, 0),
     "description": "",
     "warning": "",
@@ -12,8 +12,9 @@ bl_info = {
 
 import bpy
 from . import omuExport
+from . import quickprops
 
-modules = [omuExport]
+modules = [omuExport, quickprops]
 
 def register():
 

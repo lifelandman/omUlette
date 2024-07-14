@@ -68,3 +68,9 @@ propDict = {
     'collisioninvsphere':writeInvSphere,
     'collisiontube':writeTube,
     }
+
+#This is for quickProps.
+colPropList = ("level",
+               "keep",
+               "event",
+               "intangible")
