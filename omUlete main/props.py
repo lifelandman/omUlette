@@ -1,5 +1,6 @@
 
-def doColProps(obj, string):
+def doColProps(obj):
+    string = ""
     if 'level' in obj:
         if obj['level']:
             string += ' level'
@@ -12,6 +13,7 @@ def doColProps(obj, string):
     if 'intangible' in obj:
         if obj['intangible']:
             string += ' intangible'
+    return string
             
 colStart = '<Collide> { '#a silly attempt to minimize the number of strings in memory.
             
@@ -19,43 +21,43 @@ colCap = ' descend }'
 
 def writeBox(obj):
     string = colStart + 'Box '
-    doColProps(obj, string)
+    doColProps(obj)
     string += colCap
     return string
     
 def writePlane(obj):
     string = colStart + 'Plane '
-    doColProps(obj, string)
+    string += doColProps(obj)
     string += colCap
     return string
     
 def writePolygon(obj):
     string = colStart + 'Polygon '
-    doColProps(obj, string)
+    string += doColProps(obj)
     string += colCap
     return string
     
 def writePolyset(obj):
     string = colStart + 'Polyset '
-    doColProps(obj, string)
+    string += doColProps(obj)
     string += colCap
     return string
     
 def writeSphere(obj):
     string = colStart + 'Sphere '
-    doColProps(obj, string)
+    string += doColProps(obj)
     string += colCap
     return string
     
 def writeInvSphere(obj):
     string = colStart + 'InvSphere '
-    doColProps(obj, string)
+    string += doColProps(obj)
     string += colCap
     return string
     
 def writeTube(obj):
     string = colStart + 'Tube '
-    doColProps(obj, string)
+    string += doColProps(obj)
     string += colCap
     return string
 
