@@ -21,7 +21,7 @@ colCap = ' descend }'
 
 def writeBox(obj):
     string = colStart + 'Box '
-    doColProps(obj)
+    string += doColProps(obj)
     string += colCap
     return string
     
