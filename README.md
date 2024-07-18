@@ -1,23 +1,21 @@
 # omUlete
-A quick and easy, lightly-featured panda3d egg exporter blender plugin.
+A quick and easy, lightly-featured exporter for the .egg file format used by the Panda3D game engine/framework. Using this add-on does not require installation of Panda3D.
 
 ![image](https://user-images.githubusercontent.com/77763745/230818181-f3439022-67fb-4f12-aab9-eee694c8433d.png)
 
-
-
-## Instalation
-This plugin has no dependencies. Just install the zip-file included with the release like any other blender addon.
-If you want to compile from source, just put ZABEE-main inside of a zip-file.
+## Installation
+This plugin has no dependencies. Just install the zip-file included with the release like any other blender add-on.
+If you want to compile from source, just put the send omUlete-main to a zip-file.
 
 ## Usage
-Once you have enabled the addon, just select "egg (panda3d)" from file-export.
+Once you have enabled the add-on, just select "egg (panda3d)" from file-export.
 Before exporting, be sure to adjust the imageDir variable. this should be the directory your textures will be in relative to the model directory as specified in your config file.
-All geometry will be exported. In the future, I might make it so this is more intellegent.
+All geometry will be exported. In the future, I might make it so this is more intelligent.
 
-Multitexturing is not yet supported. The only texture applied to exported geometry is the first one specified per node-based material.
+Multi-texturing is not yet supported. The only texture applied to exported geometry is the first one specified per node-based material.
 
-#CollisionShapes and other custom-property enabled nodes
-omUlete now has support for exporting collision shapes, and I have plans to add support for at least sequence nodes.
+##CollisionShapes and other custom-property enabled nodes
+omUlete now has support for exporting collision shapes, and I have plans to at least add support for sequence nodes in the future.
 you can make an object and it's children a collision shape by adding a custom property with one of the following names (with any capitalization):
 'collisionbox'
 'collisionplane'
@@ -33,11 +31,11 @@ omUlete is built in a way that can only generated animated objects in an egg fil
 I'd love to fix this so an armature without geometry could be exported, but that would require that the whole plugin be more or less rewritten from scratch.
 
 ### Why are some exported meshes randomly inside-out?
-I swear this is blender's fault. Normaly blender stores loops in a counterclockwise order, which is what we need and expect. however, sometimes it just... doesn't. Ultimately fixing this would involve way more time and bloat. For now, try (scaling by -1 if your mesh is symetrical and) applying all scale transformations before recalculating the normals.
+I swear this is blender's fault. Normally blender stores loops in a counterclockwise order, which is what we need and expect. however, sometimes it just... doesn't. Ultimately fixing this would involve way more time and bloat. For now, try (scaling by -1 if your mesh is symmetrical and) applying all scale transformations before recalculating the normals.
 You can also/try instead recalculating the normals in the opposite direction. However, note that this is just a hacky way to swap the vertex order. Lighting will be the opposite of what it's supposed to be! \**gulp*\*
 If all fails, don't forget that you're dealing with egg files and that you can manually edit the exported product. However, this means you'll have to make the edit on every export, so be careful.
 
-### I'm exporting an animated charcter with the "Collapse Character Nodes" not ticked, but the final animation looks distorted!
+### I'm exporting an animated character with the "Collapse Character Nodes" not ticked, but the final animation looks distorted!
 This is because a panda3d character (That's the name of the class responsible for animation behind the actor class) expects that the origin of all geometry distorted by a skeleton to be the same as that of the skeleton itself.
 (note: the origin of a skeleton in an egg file is really just the offset of all the top-level bones).
 
