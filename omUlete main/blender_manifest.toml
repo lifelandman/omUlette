@@ -22,7 +22,7 @@ website = "https://github.com/lifelandman/omUlete"
 
 # Optional list defined by Blender and server, see:
 # https://docs.blender.org/manual/en/dev/extensions/tags.html
-tags = ["Import-Export",]
+tags = ["Import-Export", "Game Engine"]
 
 blender_version_min = "4.2.0"
 #^^This isn't omUlete's actual min, just won't work elsewise
