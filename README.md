@@ -2,6 +2,7 @@
 A quick and easy, lightly-featured exporter for the .egg file format used by the Panda3D game engine/framework. Using this add-on does not require installation of Panda3D.
 
 ![image](https://user-images.githubusercontent.com/77763745/230818181-f3439022-67fb-4f12-aab9-eee694c8433d.png)
+![omUlette large](https://github.com/user-attachments/assets/407ec6c8-9362-4621-a075-ddbfb4bcaacd)
 
 ## Installation
 This plugin has no dependencies. Just install the zip-file included with the release like any other blender add-on.
