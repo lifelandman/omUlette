@@ -3,19 +3,12 @@ schema_version = "1.0.0"
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "omUlete"
-version = "0.95.1"
+version = "0.97.1"
 name = "omUlete"
 tagline = "A stand-alone exporter for the Panda3D .egg format"
 maintainer = "Jackson 'lifeland' S."
 # Supported types: "add-on", "theme"
 type = "add-on"
-
-# Optional: add-ons can list which resources they will require:
-# * "files" (for access of any filesystem operations)
-# * "network" (for internet access)
-# * "camera" (to capture photos and videos)
-# * "microphone" (to capture audio)
-files = "save exported egg files"
 
 # Optional link to documentation, support, source files, etc
 website = "https://github.com/lifelandman/omUlete"
@@ -38,3 +31,6 @@ license = [
 copyright = [
   "2023 lifeland",
 ]
+
+[permissions]
+files = "save exported egg files"

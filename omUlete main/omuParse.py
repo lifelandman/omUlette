@@ -35,7 +35,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
         else:
             uvLoop = mesh.uv_layers[0]
             uv_cor = uvLoop.uv[loop_id].vector
-            uv_cor_str = str(uv_cor.x) +','+ str(uv_cor.y)#Stupid hack because something hasn't been working
+            uv_cor_str = str(uv_cor.x) +' '+ str(uv_cor.y)#Stupid hack because something hasn't been working
         if vertex_id in uv_match_check:#TODO:: Test that this works
             if uv_cor_str in uv_match_check[vertex_id]:
                 loop_id_lookup[loop_id] = uv_match_check[vertex_id][uv_cor_str]
@@ -44,7 +44,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
         co = vert.undeformed_co
         egg_data += (newliner + " <Vertex> " + str(idNum) + ' { ' + str(co[0]) + ' ' + str(co[1]) + ' ' + str(co[2])
         + newliner + "  <Normal> { " + str(vert.normal.x) + ' ' + str(vert.normal.y) + ' ' + str(vert.normal.z) + '}' + newliner)
-        if useTex: egg_data += "  <UV> { " + str(uv_cor.x) + ' ' + str(uv_cor.y) + " }"
+        if useTex and len(mesh.uv_layers) != 0: egg_data += "  <UV> { " + uv_cor_str + " }"
         egg_data += '}'
 
         if not vertex_id in uv_match_check:
@@ -213,7 +213,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                 if key.lower() in propDict:
                     egg_string += newliner + ' ' + propDict[key.lower()](obj)
                 elif issubclass(type(obj[key]), str):
-                    egg_string += newliner + ' <Tag> ' + key.replace(' ', '_') + ' { ' + obj[key] + ' }'
+                    egg_string += newliner + ' <Tag> ' + key.replace(' ', '_') + ' { "' + obj[key] + '" }'
 
 
             child_addition = ''
