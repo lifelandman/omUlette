@@ -90,7 +90,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
     for poly in mesh.polygons:
         egg_data += newliner + "<Polygon> " + str(idNum) + " { "
         
-        if useTex:
+        if useTex and poly.material_index < len(mats):#Second check prevents a crash when using a material with no texture.
             egg_data += "<TRef> { " + mats[poly.material_index] + " }" + newliner
         
         egg_data += " <VertexRef> { "#now for a bunch of shit that might not even be nessicary.

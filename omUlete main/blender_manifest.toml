@@ -3,7 +3,7 @@ schema_version = "1.0.0"
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "omUlete"
-version = "0.97.1"
+version = "0.97.2"
 name = "omUlete"
 tagline = "A stand-alone exporter for the Panda3D .egg format"
 maintainer = "Jackson 'lifeland' S."
@@ -24,8 +24,16 @@ blender_version_min = "4.2.0"
 
 # License conforming to https://spdx.org/licenses/ (use "SPDX: prefix)
 # https://docs.blender.org/manual/en/dev/extensions/licenses.html
+
+#I am very much not happy about this. I tried complaining, but apparently my complaints fell on deaf ears.
+#If someone happens to see this, know that it was not my desire for this add-on to be anything but MIT license.
+#But blender thinks it's fine to force you into sharing ALL of your code.
+#I tried to explain *exactly* why the MIT license is better for game developers, but the representitive I was emailing just couldn't get it.
+#Just to be safe and cover my ass...
+#The above comments are my (Jackson Sutherland) own and do not represent the statements of the Blender foundation in any way.
+#I am meerly expressing free speech by grumbling while complying with the requirements set by the Blender foundation.
 license = [
-  "SPDX:MIT",
+  "SPDX:GPL-3.0-only",
 ]
 # Optional: required by some licenses.
 copyright = [
