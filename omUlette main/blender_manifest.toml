@@ -20,7 +20,7 @@ tags = ["Import-Export", "Game Engine"]
 blender_version_min = "4.2.0"
 #^^This isn't omUlete's actual min, just won't work elsewise
 # Optional: maximum supported Blender version
-# blender_version_max = "5.1.0"
+# blender_version_max = "4.5.6"
 
 # License conforming to https://spdx.org/licenses/ (use "SPDX: prefix)
 # https://docs.blender.org/manual/en/dev/extensions/licenses.html
