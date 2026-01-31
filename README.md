@@ -1,6 +1,8 @@
 # omUlette
-A quick and easy, lightly-featured exporter for the .egg file format used by the Panda3D game engine/framework. Using this add-on does not require installation of Panda3D, or any other requirements.
+A quick and easy Blender exporter for the .egg file format used by the Panda3D game engine/framework. Using this add-on does not require installation of Panda3D, or any other requirements.
+
 This addon was originally written for blender 3.5, and should still work with that version.
+
 I know the blender manifest says it needs at least 4.2, but the blender manifest is only used to upload to extensions.blender.org, and does not allow me to put in any lower version.
 
 ![image](https://user-images.githubusercontent.com/77763745/230818181-f3439022-67fb-4f12-aab9-eee694c8433d.png)
