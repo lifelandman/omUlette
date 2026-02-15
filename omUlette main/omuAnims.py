@@ -211,7 +211,7 @@ def parse_anim_values(action, boneDict, armObj):
     pose = armObj.pose
     aLen = action.curve_frame_range
     for bone in pose.bones:#Ensure all bones are selected
-        bone.bone.select = True
+        bone.select = True
 
     for frame in range(int(aLen[0]), int(aLen[1])):
         pose.apply_pose_from_action(action, evaluation_time = frame)

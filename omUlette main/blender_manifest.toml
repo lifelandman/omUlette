@@ -3,7 +3,7 @@ schema_version = "1.0.0"
 # Example of manifest file for a Blender extension
 # Change the values according to your extension
 id = "omUlete"
-version = "0.97.5"
+version = "0.98.1"
 name = "omUlete"
 tagline = "A stand-alone exporter for the Panda3D .egg format"
 maintainer = "Jackson 'lifeland' S."
@@ -17,10 +17,10 @@ website = "https://github.com/lifelandman/omUlete"
 # https://docs.blender.org/manual/en/dev/extensions/tags.html
 tags = ["Import-Export", "Game Engine"]
 
-blender_version_min = "4.2.0"
+blender_version_min = "4.5.0"
 #^^This isn't omUlete's actual min, just won't work elsewise
 # Optional: maximum supported Blender version
-# blender_version_max = "5.0.0"
+# blender_version_max = "7.0.0"#or something
 
 # License conforming to https://spdx.org/licenses/ (use "SPDX: prefix)
 # https://docs.blender.org/manual/en/dev/extensions/licenses.html

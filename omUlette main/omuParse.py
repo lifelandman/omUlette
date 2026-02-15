@@ -5,6 +5,8 @@ from .props import *
 
 skippingUvs = False
 
+ignoreCustomNormals = False
+
 def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent = 1):#should return egg string for this mesh without hierarchy indentation
     newliner = "\n" + (" "* indent)
     
@@ -17,6 +19,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
                        #This is so when we're making polygons, we can look up verticie ids by loop, if need be.
 
     uv_match_check = {}#ex of what this will look like: {vertex_id: {uv_cor, eggvertid}}
+    normal_match_check = {}
     
     egg_data = newliner + "<VertexPool> " + name + "_pool {"
 
@@ -30,28 +33,53 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
 
         vert = mesh.vertices[vertex_id]
 
+        ##Identify if we've already got a suitable vertex in our pool
+        canContinue = True
+        foundVert = None#Used to determine if uv check and normal check found the same one
+        #By uv:
         if ((not useTex) and skippingUvs) or len(mesh.uv_layers) == 0:#no textures? then skip the uvs which lead to excess verts.
-            uv_cor_str = 'null'#TODO:: give users the option to toggle this behavior
+            uv_cor_str = 'null'
         else:
             uvLoop = mesh.uv_layers[0]
             uv_cor = uvLoop.uv[loop_id].vector
             uv_cor_str = str(uv_cor.x) +' '+ str(uv_cor.y)#Stupid hack because something hasn't been working
-        if vertex_id in uv_match_check:#TODO:: Test that this works
-            if uv_cor_str in uv_match_check[vertex_id]:
-                loop_id_lookup[loop_id] = uv_match_check[vertex_id][uv_cor_str]
-                continue
-            
-        co = vert.undeformed_co
-        egg_data += (newliner + " <Vertex> " + str(idNum) + ' { ' + str(co[0]) + ' ' + str(co[1]) + ' ' + str(co[2])
-        + newliner + "  <Normal> { " + str(vert.normal.x) + ' ' + str(vert.normal.y) + ' ' + str(vert.normal.z) + '}' + newliner)
-        if useTex and len(mesh.uv_layers) != 0: egg_data += "  <UV> { " + uv_cor_str + " }"
-        egg_data += '}'
+        if vertex_id in uv_match_check and uv_cor_str in uv_match_check[vertex_id]:
+            loop_id_lookup[loop_id] = uv_match_check[vertex_id][uv_cor_str]
+            foundVert = uv_match_check[vertex_id][uv_cor_str]
+        else:
+            canContinue = False
+        
+        #By normal:
+        loop_normal = loop.normal
+        norm_cor_str = str(loop_normal.x) + " " + str(loop_normal.y) + " " + str(loop_normal.z)
 
+        if (not ignoreCustomNormals) and not ( (vertex_id in normal_match_check and norm_cor_str in normal_match_check[vertex_id]) and normal_match_check[vertex_id][norm_cor_str] == foundVert ):
+            canContinue = False
+        #Return if we can
+        if canContinue: continue#We have a vertex that already meets these requirements, continuing
+
+
+        #If we've got here, we are a totally new vertex and need new entries
         if not vertex_id in uv_match_check:
             uv_match_check[vertex_id] = {}
 
         uv_match_check[vertex_id][uv_cor_str] = idNum
+
+        if not vertex_id in normal_match_check:
+            normal_match_check[vertex_id] = {}
+
+        normal_match_check[vertex_id][norm_cor_str] = idNum
+
         loop_id_lookup[loop_id] = idNum
+
+        #Write out the vert
+        co = vert.undeformed_co
+        loop_normal = vert.normal if ignoreCustomNormals else loop_normal
+        egg_data += (newliner + " <Vertex> " + str(idNum) + ' { ' + str(co[0]) + ' ' + str(co[1]) + ' ' + str(co[2])
+        + newliner + "  <Normal> { " + str(loop_normal.x) + ' ' + str(loop_normal.y) + ' ' + str(loop_normal.z) + '}' + newliner)
+        if useTex and len(mesh.uv_layers) != 0: egg_data += "  <UV> { " + uv_cor_str + " }"
+        egg_data += '}'
+
 
 
         if anim_check:
@@ -226,8 +254,10 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                 #Add texture references, and calculate the slot data for materials
                 picnum = len(thisMesh.materials)
                 if picnum != 0:
+                    matList = thisMesh.materials.values()
                     for i in range(picnum):
-                        mat = thisMesh.materials[i]
+                        mat = matList[i]
+                        if mat is None: continue
                         img_name = None
                         tex_name = None
                         tree = mat.node_tree
@@ -247,8 +277,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
 
                     
                     
-                #Process the mesh, and apply texture stuff in necissary
-                print(obj.name)    
+                #Process the mesh, and apply texture stuff in necissary 
                 new_addition = process_mesh(thisMesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent + 1)
                 egg_string += new_addition
                 obj.to_mesh_clear()
@@ -261,7 +290,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                 
 ######################## MAIN FUNCTION #####################################################
 
-def write_egg_string(texture_path, all_or_something, using_anim, skip_UUV, collapse_nodes, actionProps, filepath):
+def write_egg_string(texture_path, export_options, using_anim, skip_UUV, skip_cust_normals, collapse_nodes, actionProps, collProps, filepath):
     known_objects = []
     known_names = []#necissary so we can tell when we need to add an incrementing digit if multiple objects share a name.
     armDict = {}
@@ -269,20 +298,29 @@ def write_egg_string(texture_path, all_or_something, using_anim, skip_UUV, colla
     
     skippingUvs = skip_UUV
 
+    ignoreCustomNormals = skip_cust_normals
     
     egg_string = "<CoordinateSystem> { Z-Up }\n\n"
     
 
-    if not all_or_something:
+    if export_options == "all":
         obs = bpy.data.objects
+    elif export_options == "collections":
+        obs = []
+        for collProp in collProps:
+            if not collProp.useObjects: continue
+            coll = collProp.collectionPointer
+            for obj in coll.objects:
+                if (obj.parent and not obj.find_armature()) or obj.type == "ARMATURE": continue#We don't want to process any objects before their parents.
+                obs.append(obj)
     else:
         obs = bpy.context.selected_objects
         for obj in obs:
-            if obj.parent != None:
+            if obj.parent:
                 if obj.parent in obs:
                     continue
                 else:
-                    known_objects.append(obj.parent)
+                    known_objects.append(obj.parent)#Hack to stop weirdness if we've selected an object but not it's parent.
 
 
     child_addition = childProcess(obs, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, False)#This should be happening after mesh definition.
