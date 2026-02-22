@@ -8,6 +8,10 @@ skippingUvs = False
 ignoreCustomNormals = False
 
 def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent = 1):#should return egg string for this mesh without hierarchy indentation
+    global skippingUvs
+    global ignoreCustomNormals
+
+
     newliner = "\n" + (" "* indent)
     
     
@@ -77,7 +81,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
         loop_normal = vert.normal if ignoreCustomNormals else loop_normal
         egg_data += (newliner + " <Vertex> " + str(idNum) + ' { ' + str(co[0]) + ' ' + str(co[1]) + ' ' + str(co[2])
         + newliner + "  <Normal> { " + str(loop_normal.x) + ' ' + str(loop_normal.y) + ' ' + str(loop_normal.z) + '}' + newliner)
-        if useTex and len(mesh.uv_layers) != 0: egg_data += "  <UV> { " + uv_cor_str + " }"
+        if (useTex or not skippingUvs) and len(mesh.uv_layers) != 0: egg_data += "  <UV> { " + uv_cor_str + " }"
         egg_data += '}'
 
 
@@ -296,8 +300,10 @@ def write_egg_string(texture_path, export_options, using_anim, skip_UUV, skip_cu
     armDict = {}
     armMemDict = {}
     
+    global skippingUvs
     skippingUvs = skip_UUV
 
+    global ignoreCustomNormals
     ignoreCustomNormals = skip_cust_normals
     
     egg_string = "<CoordinateSystem> { Z-Up }\n\n"
