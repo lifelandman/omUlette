@@ -1,3 +1,4 @@
+import glob
 from unittest import skip
 import bpy
 from . import omuAnims
@@ -8,6 +9,8 @@ skippingUvs = False
 ignoreCustomNormals = False
 
 foundTextures = []
+
+global_string = ""
 
 def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent = 1):#should return egg string for this mesh without hierarchy indentation
     global skippingUvs
@@ -147,6 +150,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
     newliner = "\n" + (" "* indent)
     egg_string = "\n"
     global foundTextures
+    global global_string
 
     for obj in objects:
         if not obj in known_objects:
@@ -270,13 +274,14 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                         tree = mat.node_tree
                         if not tree is None:
                             for x in tree.nodes:
-                                if x.bl_static_type=='TEX_IMAGE' and x.image.name not in foundTextures:##THIS IS APPARENTLY DEPRICATED; and for some f*****g reason the only alternative I can find is as well. good luck, future me!
+                                if x.bl_static_type=='TEX_IMAGE':##THIS IS APPARENTLY DEPRICATED; and for some f*****g reason the only alternative I can find is as well. good luck, future me!
                                     img_name = x.image.name
                                     tex_name = img_name.replace(' ', '_')
                                     useTex = True
                                     mats.append(tex_name)
-                                    egg_string += "\n<Texture> " + tex_name + " { " + texture_path + img_name + " }"
-                                    foundTextures.append(img_name)
+                                    if x.image.name not in foundTextures:
+                                        global_string += "\n<Texture> " + tex_name + " { " + texture_path + img_name + " }"
+                                        foundTextures.append(img_name)
                                     #TODO:: add alpha support
                                     break
                         del tree
@@ -313,7 +318,10 @@ def write_egg_string(texture_path, export_options, using_anim, skip_UUV, skip_cu
     global foundTextures
     foundTextures = []
     
-    egg_string = "<CoordinateSystem> { Z-Up }\n\n"
+    global global_string
+    global_string = "<CoordinateSystem> { Z-Up }\n\n"#Hack to ensure that texture definitions happen at beginning of file
+
+    egg_string = ""
     
 
     if export_options == "all":
@@ -336,8 +344,7 @@ def write_egg_string(texture_path, export_options, using_anim, skip_UUV, skip_cu
                     known_objects.append(obj.parent)#Hack to stop weirdness if we've selected an object but not it's parent.
 
 
-    child_addition = childProcess(obs, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, False)#This should be happening after mesh definition.
-    egg_string += child_addition
+    egg_string += childProcess(obs, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, False)#This should be happening after mesh definition.
 
     ##Generate group data to hand to armString
     armMems = {}
@@ -352,5 +359,5 @@ def write_egg_string(texture_path, export_options, using_anim, skip_UUV, skip_cu
     if using_anim:
         egg_string += omuAnims.action2anim(bpy.data.armatures, actionProps, filepath, bpy.context.scene.render.fps)
     
-    return egg_string
+    return global_string + egg_string
                     
