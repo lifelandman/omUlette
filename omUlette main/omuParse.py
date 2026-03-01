@@ -7,6 +7,8 @@ skippingUvs = False
 
 ignoreCustomNormals = False
 
+foundTextures = []
+
 def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneDict, indent = 1):#should return egg string for this mesh without hierarchy indentation
     global skippingUvs
     global ignoreCustomNormals
@@ -144,7 +146,8 @@ def childKnowLoop(known_objects, child):##Super hacky, eyuk.
 def childProcess(objects, known_objects, known_names, texture_path, using_anim, armDict, armMemDict, genDart, indent = 0):
     newliner = "\n" + (" "* indent)
     egg_string = "\n"
-    
+    global foundTextures
+
     for obj in objects:
         if not obj in known_objects:
             arm = obj.find_armature()#get once, use thrice for both check and bones
@@ -267,12 +270,13 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                         tree = mat.node_tree
                         if not tree is None:
                             for x in tree.nodes:
-                                if x.bl_static_type=='TEX_IMAGE':##THIS IS APPARENTLY DEPRICATED; and for some f*****g reason the only alternative I can find is as well. good luck, future me!
+                                if x.bl_static_type=='TEX_IMAGE' and x.image.name not in foundTextures:##THIS IS APPARENTLY DEPRICATED; and for some f*****g reason the only alternative I can find is as well. good luck, future me!
                                     img_name = x.image.name
                                     tex_name = img_name.replace(' ', '_')
                                     useTex = True
                                     mats.append(tex_name)
                                     egg_string += "\n<Texture> " + tex_name + " { " + texture_path + img_name + " }"
+                                    foundTextures.append(img_name)
                                     #TODO:: add alpha support
                                     break
                         del tree
@@ -305,6 +309,9 @@ def write_egg_string(texture_path, export_options, using_anim, skip_UUV, skip_cu
 
     global ignoreCustomNormals
     ignoreCustomNormals = skip_cust_normals
+
+    global foundTextures
+    foundTextures = []
     
     egg_string = "<CoordinateSystem> { Z-Up }\n\n"
     
