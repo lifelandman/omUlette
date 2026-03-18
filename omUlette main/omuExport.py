@@ -1,4 +1,3 @@
-from math import e
 import bpy
 from bpy_extras import anim_utils
 from . import omuParse
@@ -86,6 +85,14 @@ class export_egg(Operator, ExportHelper):
         description="If this is set to true, then the armature will be exported. (animation export is not yet implemented.)\nthis will be ignored if no armatures are detected in the selected objects.",
         default=False,
     ) # type: ignore
+
+    expt_rest_pose: BoolProperty(
+        name="Export rest pose as animation",
+        description='''
+        Shortcut for exporting all armatures rest poses as a one-frame animation. Will always be in the same file.
+        This may be used for advanced animation blending.''',
+        default=False,
+    ) # type: ignore
     
     collapse_nodes: BoolProperty(
         name="Collapse Character Nodes",
@@ -171,6 +178,8 @@ class export_egg(Operator, ExportHelper):
             row = box.row()
             row.prop(context.active_operator, "collapse_nodes")
             row = box.row()
+            row.prop(context.active_operator, "expt_rest_pose")
+            row = box.row()
             ##Add action selection
             subBox = box.box()
             for item in context.scene.omuActionData:
@@ -197,7 +206,7 @@ class export_egg(Operator, ExportHelper):
             self.report({"ERROR"}, "Please select (a) collection(s) to export from.")
             return {"CANCELLED"}
         
-        egg_string = omuParse.write_egg_string(self.imageDir, self.export_objects, self.expt_animations, self.skip_UUV, self.skip_cNormals, self.collapse_nodes, context.scene.omuActionData, context.scene.omuCollectionPropCollection, self.filepath)
+        egg_string = omuParse.write_egg_string(self.imageDir, self.export_objects, self.expt_animations, self.expt_rest_pose, self.skip_UUV, self.skip_cNormals, self.collapse_nodes, context.scene.omuActionData, context.scene.omuCollectionPropCollection, self.filepath)
         del bpy.types.Scene.omuActionData
         del bpy.types.Scene.omuCollectionPropCollection
         return write_egg(context, self.filepath, egg_string)

@@ -1,5 +1,3 @@
-import glob
-from unittest import skip
 import bpy
 from . import omuAnims
 from .props import *
@@ -303,7 +301,7 @@ def childProcess(objects, known_objects, known_names, texture_path, using_anim, 
                 
 ######################## MAIN FUNCTION #####################################################
 
-def write_egg_string(texture_path, export_options, using_anim, skip_UUV, skip_cust_normals, collapse_nodes, actionProps, collProps, filepath):
+def write_egg_string(texture_path, export_options, using_anim, restPose, skip_UUV, skip_cust_normals, collapse_nodes, actionProps, collProps, filepath):
     known_objects = []
     known_names = []#necissary so we can tell when we need to add an incrementing digit if multiple objects share a name.
     armDict = {}
@@ -357,7 +355,7 @@ def write_egg_string(texture_path, export_options, using_anim, skip_UUV, skip_cu
         egg_string += armString
 
     if using_anim:
-        egg_string += omuAnims.action2anim(bpy.data.armatures, actionProps, filepath, bpy.context.scene.render.fps)
+        egg_string += omuAnims.action2anim(bpy.data.armatures, actionProps, filepath, bpy.context.scene.render.fps, restPose)
     
     return global_string + egg_string
                     

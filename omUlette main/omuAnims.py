@@ -80,12 +80,28 @@ def write_bone_egg(eggStr, bone, boneDict, indent, knownBones):
 
 ########################ANIMATION EGG GENERATOR###################################
 from copy import deepcopy
-def action2anim(armatures, actionProps, filepath, fps):
+def action2anim(armatures, actionProps, filepath, fps, restPose):
     eggStr = "\n"
     arms = {}
     
     for arm in armatures:
-        arms[arm.name] = parse_bone_children(arm)
+        arms[clean_name(arm.name)] = parse_bone_children(arm)
+
+        if restPose:#Export rest pose as one frame animation
+            curvedArm = parse_rest_pose(deepcopy(arms[clean_name(arm.name)]), bpy.data.objects[arm.name])
+
+            animStr = "\n<Table> {\n <Bundle> rest_pose {"
+            animStr += "\n  <Table> \"<skeleton>\" {\n"
+        
+            for bone in arm.bones:
+                if bone.parent:
+                    continue
+                else:
+                    animStr += write_joints(bone, curvedArm, fps)
+        
+            animStr += "  }\n }\n}"
+
+            eggStr += animStr
     
     for prop in actionProps:
         action = prop.action
@@ -107,8 +123,10 @@ def action2anim(armatures, actionProps, filepath, fps):
             if loopCheck:
                 break
         del loopCheck
+
         if not foundArm:#Uh oh! no armature uses this action, so we can't structure the egg data!
-            print("Warning! cannot find assosiated armature for action " + action.name)
+            #print("Warning! cannot find assosiated armature for action " + action.name)
+            bpy.context.active_operator.report({"WARNING"}, "Warning! cannot find assosiated armature for action " + action.name)
             continue
         del foundArm#We've found an armature, and broken out of the loops, so we can now start processing.
         
@@ -121,7 +139,7 @@ def action2anim(armatures, actionProps, filepath, fps):
             if bone.parent:
                 continue
             else:
-                animStr += write_joints(bone, curvedArm, fps, int(action.curve_frame_range[0]), int(action.curve_frame_range[1]))
+                animStr += write_joints(bone, curvedArm, fps)
         
         animStr += "  }\n }\n}"
         
@@ -135,7 +153,7 @@ def action2anim(armatures, actionProps, filepath, fps):
 
 
 from mathutils import Quaternion
-def write_joints(bone, armDict, fps, start, stop, level = 3):
+def write_joints(bone, armDict, fps, level = 3):
     indent = ' ' * level
 
     jointStr = indent + "<Table> " + clean_name(bone.name) + " {\n"
@@ -190,7 +208,7 @@ def write_joints(bone, armDict, fps, start, stop, level = 3):
             
     #add child bones under this hierarchy
     for child in bone.children:
-        jointStr += write_joints(child, armDict, fps, start, stop, level + 1)
+        jointStr += write_joints(child, armDict, fps, level + 1)
     
     jointStr += indent + "}\n"
     return jointStr
@@ -203,7 +221,8 @@ def parse_bone_children(arm):#This is an artifact, but I can't remove it because
         if cName not in boneDict:
             boneDict[cName] = {'translation':{'x':"", 'y':"", 'z':""}, 'rotation':{'r':"", 'p':"", 'h':""}, 'scale':{'x':"", 'y':"", 'z':""}}
         else:
-            print("ALERT! Bone name found twice, animation invalid")
+            #print("ALERT! Bone name found twice, animation invalid")
+            bpy.context.active_operator.report({"ERROR"}, "ALERT! Bone name found twice, animation invalid")
         
     return boneDict#We don't process fcurve data here because we don't want to loop through an armature's bones for each action related to that armature. if we just loop for hiarchy once, good.
 
@@ -220,7 +239,8 @@ def parse_anim_values(action, boneDict, armObj):
         for bone in poseB.bones:
             cName = clean_name(bone.bone.name)
             if cName not in boneDict:
-                print("Alert! Bone was not logged before animation value processing")
+                #print("Alert! Bone was not logged before animation value processing")
+                bpy.context.active_operator.report({"ERROR"}, "Alert! Bone was not logged before animation value processing")
             transforms = boneDict[cName]
             
             mat = bone.parent.matrix.inverted() @ bone.matrix if bone.parent else bone.matrix
@@ -239,6 +259,39 @@ def parse_anim_values(action, boneDict, armObj):
             transforms["scale"]["x"] += (str(scale[0]) + ' ')
             transforms["scale"]["y"] += (str(scale[1]) + ' ')
             transforms["scale"]["z"] += (str(scale[2]) + ' ')
+    return boneDict
+
+def parse_rest_pose(boneDict, armObj):
+    pose = armObj.pose
+
+    for bone in pose.bones:#Ensure all bones are selected
+        bone.select = True
+        bone.matrix_basis.identity()
+
+    poseB = armObj.evaluated_get(bpy.context.evaluated_depsgraph_get()).pose
+    for bone in poseB.bones:
+        cName = clean_name(bone.bone.name)
+        if cName not in boneDict:
+            #print("Alert! Bone was not logged before animation value processing")
+            bpy.context.active_operator.report({"ERROR"}, "Alert! Bone was not logged before animation value processing")
+        transforms = boneDict[cName]
+            
+        mat = bone.parent.matrix.inverted() @ bone.matrix if bone.parent else bone.matrix
+        scale = bone.scale#This has to be different because negative scale can't be gotten from just a matrix
+        rot = mat.to_euler("YXZ")#WARNING! these are radians
+        trans = mat.to_translation()
+        #Translation
+        transforms["translation"]["x"] += (str(trans.x) + ' ')
+        transforms["translation"]["y"] += (str(trans.y) + ' ')
+        transforms["translation"]["z"] += (str(trans.z) + ' ')
+        #Rotation
+        transforms["rotation"]["r"] += (str(degrees(rot[1])) + ' ')
+        transforms["rotation"]["p"] += (str(degrees(rot[0])) + ' ')
+        transforms["rotation"]["h"] += (str(degrees(rot[2])) + ' ')
+        #scale
+        transforms["scale"]["x"] += (str(scale[0]) + ' ')
+        transforms["scale"]["y"] += (str(scale[1]) + ' ')
+        transforms["scale"]["z"] += (str(scale[2]) + ' ')
     return boneDict
         
 
