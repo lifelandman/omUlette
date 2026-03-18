@@ -90,7 +90,7 @@ def action2anim(armatures, actionProps, filepath, fps, restPose):
         if restPose:#Export rest pose as one frame animation
             curvedArm = parse_rest_pose(deepcopy(arms[clean_name(arm.name)]), bpy.data.objects[arm.name])
 
-            animStr = "\n<Table> {\n <Bundle> rest_pose {"
+            animStr = "\n<Table> {\n <Bundle>" + clean_name(arm.name) + "_rest_pose {"
             animStr += "\n  <Table> \"<skeleton>\" {\n"
         
             for bone in arm.bones:

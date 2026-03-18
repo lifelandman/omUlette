@@ -88,9 +88,9 @@ class export_egg(Operator, ExportHelper):
 
     expt_rest_pose: BoolProperty(
         name="Export rest pose as animation",
-        description='''
-        Shortcut for exporting all armatures rest poses as a one-frame animation. Will always be in the same file.
-        This may be used for advanced animation blending.''',
+        description='''Shortcut for exporting all armatures rest poses as a one-frame animation. Will always be in the same file.
+        This may be used for advanced animation blending.
+        The end result will be named <ARMATURE_NAME>_rest_pose''',
         default=False,
     ) # type: ignore
     
