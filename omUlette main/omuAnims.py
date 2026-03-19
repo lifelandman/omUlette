@@ -90,7 +90,7 @@ def action2anim(armatures, actionProps, filepath, fps, restPose):
         if restPose:#Export rest pose as one frame animation
             curvedArm = parse_rest_pose(deepcopy(arms[clean_name(arm.name)]), bpy.data.objects[arm.name])
 
-            animStr = "\n<Table> {\n <Bundle>" + clean_name(arm.name) + "_rest_pose {"
+            animStr = "\n<Table> {\n <Bundle> " + clean_name(arm.name) + "_rest_pose {"
             animStr += "\n  <Table> \"<skeleton>\" {\n"
         
             for bone in arm.bones:
@@ -125,8 +125,8 @@ def action2anim(armatures, actionProps, filepath, fps, restPose):
         del loopCheck
 
         if not foundArm:#Uh oh! no armature uses this action, so we can't structure the egg data!
-            #print("Warning! cannot find assosiated armature for action " + action.name)
-            bpy.context.active_operator.report({"WARNING"}, "Warning! cannot find assosiated armature for action " + action.name)
+            print("Warning! cannot find assosiated armature for action " + action.name)
+            #bpy.context.active_operator.report({"WARNING"}, "Warning! cannot find assosiated armature for action " + action.name)
             continue
         del foundArm#We've found an armature, and broken out of the loops, so we can now start processing.
         
@@ -221,8 +221,8 @@ def parse_bone_children(arm):#This is an artifact, but I can't remove it because
         if cName not in boneDict:
             boneDict[cName] = {'translation':{'x':"", 'y':"", 'z':""}, 'rotation':{'r':"", 'p':"", 'h':""}, 'scale':{'x':"", 'y':"", 'z':""}}
         else:
-            #print("ALERT! Bone name found twice, animation invalid")
-            bpy.context.active_operator.report({"ERROR"}, "ALERT! Bone name found twice, animation invalid")
+            print("ALERT! Bone name found twice, animation invalid")
+            #bpy.context.active_operator.report({"ERROR"}, "ALERT! Bone name found twice, animation invalid")
         
     return boneDict#We don't process fcurve data here because we don't want to loop through an armature's bones for each action related to that armature. if we just loop for hiarchy once, good.
 
@@ -239,8 +239,8 @@ def parse_anim_values(action, boneDict, armObj):
         for bone in poseB.bones:
             cName = clean_name(bone.bone.name)
             if cName not in boneDict:
-                #print("Alert! Bone was not logged before animation value processing")
-                bpy.context.active_operator.report({"ERROR"}, "Alert! Bone was not logged before animation value processing")
+                print("Alert! Bone was not logged before animation value processing")
+                #bpy.context.active_operator.report({"ERROR"}, "Alert! Bone was not logged before animation value processing")
             transforms = boneDict[cName]
             
             mat = bone.parent.matrix.inverted() @ bone.matrix if bone.parent else bone.matrix
@@ -272,8 +272,8 @@ def parse_rest_pose(boneDict, armObj):
     for bone in poseB.bones:
         cName = clean_name(bone.bone.name)
         if cName not in boneDict:
-            #print("Alert! Bone was not logged before animation value processing")
-            bpy.context.active_operator.report({"ERROR"}, "Alert! Bone was not logged before animation value processing")
+            print("Alert! Bone was not logged before animation value processing")
+            #bpy.context.active_operator.report({"ERROR"}, "Alert! Bone was not logged before animation value processing")
         transforms = boneDict[cName]
             
         mat = bone.parent.matrix.inverted() @ bone.matrix if bone.parent else bone.matrix
