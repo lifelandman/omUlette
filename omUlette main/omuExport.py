@@ -151,8 +151,6 @@ class export_egg(Operator, ExportHelper):
         row.prop(context.active_operator, "export_objects")
         if self.export_objects == "collections":
             row = box.row()
-            row.prop(context.active_operator, "collapse_nodes")
-            row = box.row()
             ##Add action selection
             subBox = box.box()
             for item in context.scene.omuCollectionPropCollection:

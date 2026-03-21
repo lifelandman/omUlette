@@ -42,7 +42,7 @@ def write_bone_egg(eggStr, bone, boneDict, indent, knownBones):
     
     mat = bone.parent.matrix_local.inverted() @ bone.matrix_local if bone.parent else bone.matrix_local#Complicated because we need to not access parent if it doesn't exist
     scale = mat.to_scale()
-    rot = mat.to_euler()#WARNING! these are radians
+    rot = mat.to_euler("YXZ")#WARNING! these are radians
     trans = mat.to_translation()
     
     if (scale[0]) or (scale[1]) or (scale[2]):
@@ -55,8 +55,8 @@ def write_bone_egg(eggStr, bone, boneDict, indent, knownBones):
     if rot[2]:
         eggStr += "<RotZ> { " + str(degrees(rot.z)) + ' }\n' + ((indent+ 2)*' ')
     
-    if trans[0] or trans[1] or trans[2]:
-        eggStr += "<Translate> { " + str(trans[0]) + ' ' + str(trans[1]) + ' ' + str(trans[2]) + " }"#Last possible transform, so no new line plus indent
+    if trans.x or trans.y or trans.z:
+        eggStr += "<Translate> { " + str(trans.x) + ' ' + str(trans.y) + ' ' + str(trans.z) + " }"#Last possible transform, so no new line plus indent
     
     #cap transform
     eggStr += '\n' + ((indent + 1) * ' ') + "}\n"
@@ -146,6 +146,7 @@ def action2anim(armatures, actionProps, filepath, fps, restPose):
         if prop.filePlace == 'OP1':
             eggStr += animStr
         else:
+            animStr = "<CoordinateSystem> { Z-Up }\n\n\n" + animStr
             f = open(filepath + "_" + clean_name(action.name) + ".egg", 'w', encoding='utf-8')
             f.write(animStr)
             f.close()
@@ -164,43 +165,43 @@ def write_joints(bone, armDict, fps, level = 3):
     boneCN = clean_name(bone.name)
     ##SCALE WRITING
     if 'scale' in armDict[boneCN]:
-        jointStr += indent + "  <S$Anim> i { <V>{ "
+        jointStr += indent + "  <S$Anim> i { <V> { "
         jointStr += armDict[boneCN]['scale']["x"]
         jointStr += "}}\n"
         ############################################
-        jointStr += indent + "  <S$Anim> j { <V>{ "
+        jointStr += indent + "  <S$Anim> j { <V> { "
         jointStr += armDict[boneCN]['scale']["y"]
         jointStr += "}}\n"
         ############################################
-        jointStr += indent + "  <S$Anim> k { <V>{ "
+        jointStr += indent + "  <S$Anim> k { <V> { "
         jointStr += armDict[boneCN]['scale']["z"]
         jointStr += "}}\n"
     
     ##Rotation WRITING
     if 'rotation' in armDict[boneCN]:
-        jointStr += indent + "  <S$Anim> r { <V>{ "
+        jointStr += indent + "  <S$Anim> r { <V> { "
         jointStr += armDict[boneCN]['rotation']["r"]
         jointStr += "}}\n"
         ############################################
-        jointStr += indent + "  <S$Anim> p { <V>{ "
+        jointStr += indent + "  <S$Anim> p { <V> { "
         jointStr += armDict[boneCN]['rotation']["p"]
         jointStr += "}}\n"
         ############################################
-        jointStr += indent + "  <S$Anim> h { <V>{ "
+        jointStr += indent + "  <S$Anim> h { <V> { "
         jointStr += armDict[boneCN]['rotation']["h"]
         jointStr += "}}\n"
 
     ##location WRITING
     if 'translation' in armDict[boneCN]:
-        jointStr += indent + "  <S$Anim> x { <V>{ "
+        jointStr += indent + "  <S$Anim> x { <V> { "
         jointStr += armDict[boneCN]['translation']["x"]
         jointStr += "}}\n"
         ############################################
-        jointStr += indent + "  <S$Anim> y { <V>{ "
+        jointStr += indent + "  <S$Anim> y { <V> { "
         jointStr += armDict[boneCN]['translation']["y"]
         jointStr += "}}\n"
         ############################################
-        jointStr += indent + "  <S$Anim> z { <V>{ "
+        jointStr += indent + "  <S$Anim> z { <V> { "
         jointStr += armDict[boneCN]['translation']["z"]
         jointStr += "}}\n"
     del boneCN
@@ -226,14 +227,17 @@ def parse_bone_children(arm):#This is an artifact, but I can't remove it because
         
     return boneDict#We don't process fcurve data here because we don't want to loop through an armature's bones for each action related to that armature. if we just loop for hiarchy once, good.
 
+
+from mathutils import Matrix
+
 def parse_anim_values(action, boneDict, armObj):
     pose = armObj.pose
     aLen = action.curve_frame_range
     for bone in pose.bones:#Ensure all bones are selected
         bone.select = True
-        bone.matrix_basis.identity()
+        bone.matrix_basis = Matrix()
 
-    for frame in range(int(aLen[0]), int(aLen[1])):
+    for frame in range(int(aLen[0]), int(aLen[1]) + 1):
         pose.apply_pose_from_action(action, evaluation_time = frame)
         poseB = armObj.evaluated_get(bpy.context.evaluated_depsgraph_get()).pose
         for bone in poseB.bones:
@@ -252,14 +256,15 @@ def parse_anim_values(action, boneDict, armObj):
             transforms["translation"]["y"] += (str(trans.y) + ' ')
             transforms["translation"]["z"] += (str(trans.z) + ' ')
             #Rotation
-            transforms["rotation"]["r"] += (str(degrees(rot[1])) + ' ')
-            transforms["rotation"]["p"] += (str(degrees(rot[0])) + ' ')
-            transforms["rotation"]["h"] += (str(degrees(rot[2])) + ' ')
+            transforms["rotation"]["r"] += (str(degrees(rot.y)) + ' ')
+            transforms["rotation"]["p"] += (str(degrees(rot.x)) + ' ')
+            transforms["rotation"]["h"] += (str(degrees(rot.z)) + ' ')
             #scale
             transforms["scale"]["x"] += (str(scale[0]) + ' ')
             transforms["scale"]["y"] += (str(scale[1]) + ' ')
             transforms["scale"]["z"] += (str(scale[2]) + ' ')
     return boneDict
+
 
 def parse_rest_pose(boneDict, armObj):
     pose = armObj.pose
@@ -276,7 +281,7 @@ def parse_rest_pose(boneDict, armObj):
             #bpy.context.active_operator.report({"ERROR"}, "Alert! Bone was not logged before animation value processing")
         transforms = boneDict[cName]
             
-        mat = bone.parent.matrix.inverted() @ bone.matrix if bone.parent else bone.matrix
+        mat = bone.bone.parent.matrix_local.inverted() @ bone.bone.matrix_local if bone.parent else bone.bone.matrix_local
         scale = bone.scale#This has to be different because negative scale can't be gotten from just a matrix
         rot = mat.to_euler("YXZ")#WARNING! these are radians
         trans = mat.to_translation()
@@ -285,9 +290,9 @@ def parse_rest_pose(boneDict, armObj):
         transforms["translation"]["y"] += (str(trans.y) + ' ')
         transforms["translation"]["z"] += (str(trans.z) + ' ')
         #Rotation
-        transforms["rotation"]["r"] += (str(degrees(rot[1])) + ' ')
-        transforms["rotation"]["p"] += (str(degrees(rot[0])) + ' ')
-        transforms["rotation"]["h"] += (str(degrees(rot[2])) + ' ')
+        transforms["rotation"]["r"] += (str(degrees(rot.y)) + ' ')
+        transforms["rotation"]["p"] += (str(degrees(rot.x)) + ' ')
+        transforms["rotation"]["h"] += (str(degrees(rot.z)) + ' ')
         #scale
         transforms["scale"]["x"] += (str(scale[0]) + ' ')
         transforms["scale"]["y"] += (str(scale[1]) + ' ')

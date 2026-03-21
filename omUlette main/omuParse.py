@@ -350,7 +350,7 @@ def write_egg_string(texture_path, export_options, using_anim, restPose, skip_UU
     if using_anim:
         for arm in bpy.data.armatures:
             armMems[arm.name] = childProcess(armMemDict[arm.name], [], known_names, texture_path, True, armDict, armMemDict, True, indent = 1)
-        armString = omuAnims.gen_anim_egg_string(armDict, bpy.data.armatures, armMems, collapse_nodes) if using_anim == True else ''
+        armString = omuAnims.gen_anim_egg_string(armDict, bpy.data.armatures, armMems, collapse_nodes)
     
         egg_string += armString
 
