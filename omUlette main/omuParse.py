@@ -50,7 +50,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
             uvLoop = mesh.uv_layers[0]
             uv_cor = uvLoop.uv[loop_id].vector
             uv_cor_str = str(uv_cor.x) +' '+ str(uv_cor.y)#Stupid hack because something hasn't been working
-        if vertex_id in uv_match_check and uv_cor_str in uv_match_check[vertex_id]:
+        if vertex_id in uv_match_check.keys() and uv_cor_str in uv_match_check[vertex_id]:
             loop_id_lookup[loop_id] = uv_match_check[vertex_id][uv_cor_str]
             foundVert = uv_match_check[vertex_id][uv_cor_str]
         else:
@@ -60,7 +60,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
         loop_normal = loop.normal
         norm_cor_str = str(loop_normal.x) + " " + str(loop_normal.y) + " " + str(loop_normal.z)
 
-        if (not ignoreCustomNormals) and not ( (vertex_id in normal_match_check and norm_cor_str in normal_match_check[vertex_id]) and normal_match_check[vertex_id][norm_cor_str] == foundVert ):
+        if (not ignoreCustomNormals) and not ( (vertex_id in normal_match_check.keys() and norm_cor_str in normal_match_check[vertex_id]) and normal_match_check[vertex_id][norm_cor_str] == foundVert ):
             canContinue = False
         #Return if we can
         if canContinue: continue#We have a vertex that already meets these requirements, continuing
@@ -108,7 +108,7 @@ def process_mesh(mesh, name, mats, useTex, boneNames, vgroups, anim_check, boneD
                         boneDict[groupName][name + "_pool"][card.weight] = []
                         #print("created list for storing verts of given weight")
 
-                    if idNum not in boneDict[groupName][name + "_pool"][card.weight]:#We don't have this ID number yet, so let's add it for refrence during bone definition.
+                    if card.weight > 0.0 and idNum not in boneDict[groupName][name + "_pool"][card.weight]:#We don't have this ID number yet, so let's add it for refrence during bone definition.
                         boneDict[groupName][name + "_pool"][card.weight].append(idNum)
                         #print("added vert ID")
         #Create entries for bones without geometry to avoid a crash. Yes this causes a memory leak.
